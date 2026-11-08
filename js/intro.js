@@ -2,10 +2,10 @@
  * The opening ident: an orange "nik" splat that pops in, holds, then zooms
  * through the camera and dissolves into the homepage.
  *
- * It starts on its own as soon as the page loads. Browsers may block sound
- * until the visitor has interacted with the site, in which case the logo
- * still plays, just silently. It only plays once per browser session, and
- * deep links (e.g. #/title/codemic) skip it entirely.
+ * The logo appears on its own and waits; clicking it (or anywhere, or pressing
+ * a key) launches the zoom and the sound. Browsers only allow sound after a
+ * click, so the click is what makes the audio work. It only plays once per
+ * browser session, and deep links (e.g. #/title/codemic) skip it entirely.
  */
 (function () {
   const SEEN_KEY = "nik-intro-seen";
@@ -55,7 +55,6 @@
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     const ctx = new AC();
-    ctx.resume().catch(() => {}); // succeeds only where the browser allows autoplaying sound
     const now = ctx.currentTime + 0.05;
     const master = ctx.createGain();
     master.gain.value = 0.9;
@@ -128,10 +127,26 @@
       setTimeout(() => { el.hidden = true; }, 650);
     }
 
-    el.classList.add("is-playing");
-    playSting();
-    el.querySelector(".intro__logo").addEventListener("animationend", finish, { once: true });
-    setTimeout(finish, 4500); // safety net if animationend never fires
+    const logo = el.querySelector(".intro__logo");
+    el.classList.add("is-ready");
+    logo.focus({ preventScroll: true });
+
+    let launched = false;
+    function launch() {
+      if (launched) return;
+      launched = true;
+      el.removeEventListener("click", launch);
+      window.removeEventListener("keydown", launch);
+      el.classList.replace("is-ready", "is-launching");
+      playSting();
+      logo.addEventListener("animationend", (e) => {
+        if (e.animationName === "logo-launch") finish();
+      });
+      setTimeout(finish, 3800); // safety net if animationend never fires
+    }
+
+    el.addEventListener("click", launch);
+    window.addEventListener("keydown", launch);
   }
 
   window.Intro = { run };

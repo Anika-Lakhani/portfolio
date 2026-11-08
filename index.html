@@ -11,20 +11,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- UI font + the "show logo" fonts each project can pick from (see data/projects.js) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=Bowlby+One&family=Pacifico&family=Bungee&family=Bungee+Shade&family=Monoton&family=Righteous&family=Lobster&family=Permanent+Marker&family=Black+Ops+One&family=Fredoka:wght@600;700&family=Abril+Fatface&family=Rubik+Mono+One&family=Press+Start+2P&family=Shrikhand&family=Special+Elite&display=swap" />
-  <link rel="stylesheet" href="css/styles.css?v=2" />
+  <link rel="stylesheet" href="css/styles.css?v=3" />
 </head>
 <body>
   <!-- Intro: the "nik lakhani" ident that plays before the homepage -->
   <div id="intro" class="intro" hidden>
     <div class="intro__stars" aria-hidden="true"></div>
-    <div class="intro__logo" aria-label="nik lakhani">
+    <button class="intro__logo" type="button" aria-label="Enter Anika Lakhani's portfolio">
       <svg class="intro__splat" viewBox="0 0 400 260" aria-hidden="true"></svg>
       <span class="intro__nik">nik</span>
       <span class="intro__lakhani">lakhani</span>
       <svg class="intro__moon" viewBox="0 0 100 100" aria-hidden="true">
         <path d="M62 8a44 44 0 1 0 30 74A36 36 0 1 1 62 8z" />
       </svg>
-    </div>
+    </button>
   </div>
 
   <header class="nav" id="nav">
@@ -43,8 +43,8 @@
   <main id="app"></main>
   <div id="modal-root"></div>
 
-  <script src="data/projects.js?v=2"></script>
-  <script src="js/intro.js?v=2"></script>
-  <script src="js/app.js?v=2"></script>
+  <script src="data/projects.js?v=3"></script>
+  <script src="js/intro.js?v=3"></script>
+  <script src="js/app.js?v=3"></script>
 </body>
 </html>
