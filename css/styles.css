@@ -69,13 +69,26 @@ img { display: block; max-width: 100%; }
 /* ---------- Home rows ---------- */
 .home { padding: 110px 0 80px; }
 .row { margin-bottom: 3rem; }
-.row__title {
+.row__head {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;
   margin: 0 var(--gutter) .8rem;
+}
+.row__title {
+  margin: 0;
   font-size: clamp(1.1rem, 1.6vw, 1.5rem);
   font-weight: 700;
+  opacity: 0; translate: -28px 0;
+  transition: opacity .6s ease, translate .7s cubic-bezier(.2,.8,.2,1);
 }
+.row.is-in .row__title { opacity: 1; translate: 0 0; }
+/* Page dashes, shown when you hover a row */
+.row__pages { display: flex; gap: 3px; opacity: 0; transition: opacity .3s; }
+.row:hover .row__pages { opacity: 1; }
+.row__pages i { width: 14px; height: 2px; background: #4d4d4d; transition: background .3s, width .3s; }
+.row__pages i.is-active { background: #aaa; width: 22px; }
 .row__viewport { position: relative; }
 .row__track {
+  --tilt: 0deg;
   display: flex; gap: 10px;
   overflow-x: auto; scroll-snap-type: x mandatory;
   padding: 18px var(--gutter) 22px;
@@ -104,11 +117,19 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   position: relative;
   padding: 0; border: 0; background: var(--bg-card);
-  transition: transform .25s ease, box-shadow .25s ease;
   text-align: left;
+  /* Lean with sideways scrolling (--tilt is set by app.js) */
+  transform: perspective(900px) rotateY(var(--tilt));
+  /* Before its row scrolls into view: low and invisible. Cards then rise in one after another. */
+  opacity: 0; translate: 0 48px;
+  transition:
+    opacity .6s ease calc(var(--i, 0) * 70ms),
+    translate .8s cubic-bezier(.2,.8,.2,1) calc(var(--i, 0) * 70ms),
+    scale .25s ease, box-shadow .25s ease;
 }
+.row.is-in .card { opacity: 1; translate: 0 0; }
 .card:hover, .card:focus-visible {
-  transform: scale(1.06);
+  scale: 1.06;
   box-shadow: 0 12px 30px rgba(0,0,0,.6);
   z-index: 2;
   outline: none;

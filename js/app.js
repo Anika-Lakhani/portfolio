@@ -53,16 +53,30 @@
     if (app.dataset.view === "home") return; // keep scroll position when closing a listing
     app.dataset.view = "home";
     app.innerHTML = `<div class="home">${rows.map(renderRow).join("")}</div>`;
-    app.querySelectorAll(".row__viewport").forEach(wireRow);
+    app.querySelectorAll(".row").forEach(wireRow);
+    introDone.then(() => revealRows(app.querySelectorAll(".row")));
+  }
+
+  // Rows slide in as they scroll into view (waits until the intro has finished)
+  function revealRows(rowEls) {
+    if (!("IntersectionObserver" in window)) return rowEls.forEach((r) => r.classList.add("is-in"));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("is-in");
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.2 });
+    rowEls.forEach((r) => io.observe(r));
   }
 
   function renderRow(row) {
     const cards = row.ids
       .filter((id) => projects[id])
-      .map((id) => {
+      .map((id, i) => {
         const p = projects[id];
         return `
-          <a class="card" href="#/title/${id}" aria-label="${esc(p.title)}">
+          <a class="card" href="#/title/${id}" aria-label="${esc(p.title)}" style="--i:${i}">
             ${art(p)}
             ${p.top10 ? '<span class="top10"><small>TOP</small><b>10</b></span>' : ""}
             ${p.badge ? `<span class="badge">${esc(p.badge)}</span>` : ""}
@@ -71,7 +85,10 @@
       .join("");
     return `
       <section class="row">
-        <h2 class="row__title">${esc(row.title)}</h2>
+        <div class="row__head">
+          <h2 class="row__title">${esc(row.title)}</h2>
+          <div class="row__pages" aria-hidden="true"></div>
+        </div>
         <div class="row__viewport">
           <button class="row__arrow row__arrow--left" aria-label="Scroll left">‹</button>
           <div class="row__track">${cards}</div>
@@ -80,17 +97,42 @@
       </section>`;
   }
 
-  function wireRow(vp) {
-    const track = vp.querySelector(".row__track");
-    const left = vp.querySelector(".row__arrow--left");
-    const right = vp.querySelector(".row__arrow--right");
+  function wireRow(row) {
+    const track = row.querySelector(".row__track");
+    const left = row.querySelector(".row__arrow--left");
+    const right = row.querySelector(".row__arrow--right");
+    const pagesEl = row.querySelector(".row__pages");
+
+    // Arrows + the little page dashes in the row's top-right corner
     const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
       left.disabled = track.scrollLeft < 5;
-      right.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+      right.disabled = track.scrollLeft >= max - 5;
+      const pages = max > 5 ? Math.ceil(track.scrollWidth / track.clientWidth) : 0;
+      if (pagesEl.childElementCount !== pages) pagesEl.innerHTML = "<i></i>".repeat(pages);
+      const active = pages ? Math.round((track.scrollLeft / max) * (pages - 1)) : -1;
+      [...pagesEl.children].forEach((d, i) => d.classList.toggle("is-active", i === active));
     };
     left.onclick = () => track.scrollBy({ left: -track.clientWidth * 0.85, behavior: "smooth" });
     right.onclick = () => track.scrollBy({ left: track.clientWidth * 0.85, behavior: "smooth" });
-    track.addEventListener("scroll", update, { passive: true });
+
+    // Cards lean into sideways motion, then settle back when scrolling stops
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let lastLeft = track.scrollLeft, tilt = 0, frame = null;
+    function settle() {
+      const velocity = track.scrollLeft - lastLeft;
+      lastLeft = track.scrollLeft;
+      const target = Math.max(-14, Math.min(14, -velocity * 0.6));
+      tilt += (target - tilt) * 0.2;
+      track.style.setProperty("--tilt", `${tilt.toFixed(2)}deg`);
+      frame = Math.abs(tilt) > 0.05 || velocity !== 0 ? requestAnimationFrame(settle) : null;
+      if (!frame) track.style.setProperty("--tilt", "0deg");
+    }
+
+    track.addEventListener("scroll", () => {
+      update();
+      if (!calm && !frame) frame = requestAnimationFrame(settle);
+    }, { passive: true });
     window.addEventListener("resize", update);
     update();
   }
@@ -276,6 +318,9 @@
   window.addEventListener("scroll", () => nav.classList.toggle("is-solid", window.scrollY > 40), { passive: true });
   window.addEventListener("hashchange", route);
 
+  let markIntroDone;
+  const introDone = new Promise((resolve) => { markIntroDone = resolve; });
+
   route();
-  window.Intro.run(() => {});
+  window.Intro.run(() => markIntroDone());
 })();
