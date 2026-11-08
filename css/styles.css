@@ -359,6 +359,28 @@ img { display: block; max-width: 100%; }
   fill: #ffe27a; filter: drop-shadow(0 0 14px rgba(255,226,122,.7));
 }
 
+.rocket {
+  position: fixed; left: 0; top: 0; z-index: 5;
+  width: 30px; height: 48px; margin: -24px 0 0 -15px; /* center the rocket on the pointer */
+  pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+  will-change: transform;
+}
+.rocket svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 6px rgba(255,255,255,.25)); }
+.rocket__flame {
+  fill: #ffb300;
+  transform-origin: 20px 46px;
+  transform: scaleY(.35);
+  transition: transform .15s;
+  animation: flicker .12s ease-in-out infinite alternate;
+}
+.rocket.is-moving .rocket__flame { transform: scaleY(1); fill: #ff7a00; }
+@media (hover: hover) and (pointer: fine) {
+  .intro.is-ready, .intro.is-ready * { cursor: none; }
+  .intro.is-ready.has-rocket .rocket { opacity: 1; }
+}
+@keyframes flicker { to { opacity: .7; } }
+
 @keyframes logo-appear {
   from { opacity: 0; transform: scale(.7); filter: blur(8px); }
   to   { opacity: 1; transform: scale(1); filter: blur(0); }

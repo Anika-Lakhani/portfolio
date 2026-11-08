@@ -104,6 +104,50 @@
     setTimeout(() => ctx.close(), 4500);
   }
 
+  /*
+   * Rocket cursor: follows the pointer and turns to face the direction it's
+   * moving, easing around the turn so it steers instead of snapping.
+   * Returns a function that stops it.
+   */
+  function steerRocket(intro, rocket) {
+    let x = 0, y = 0, lastX = null, lastY = null;
+    let angle = 0, target = 0, idleTimer, frame;
+
+    function onMove(e) {
+      x = e.clientX;
+      y = e.clientY;
+      if (lastX !== null) {
+        const dx = x - lastX, dy = y - lastY;
+        if (dx * dx + dy * dy > 4) {
+          // The artwork points up, so add 90° to the movement angle
+          target = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+          rocket.classList.add("is-moving");
+          clearTimeout(idleTimer);
+          idleTimer = setTimeout(() => rocket.classList.remove("is-moving"), 120);
+        }
+      }
+      lastX = x;
+      lastY = y;
+      intro.classList.add("has-rocket");
+    }
+
+    function tick() {
+      // Turn the short way around (e.g. 350° → 10° is +20°, not -340°)
+      const diff = ((target - angle + 540) % 360) - 180;
+      angle += diff * 0.2;
+      rocket.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+      frame = requestAnimationFrame(tick);
+    }
+
+    window.addEventListener("pointermove", onMove);
+    frame = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(frame);
+      clearTimeout(idleTimer);
+    };
+  }
+
   function run(onDone) {
     const el = document.getElementById("intro");
     let seen = false;
@@ -130,11 +174,13 @@
     const logo = el.querySelector(".intro__logo");
     el.classList.add("is-ready");
     logo.focus({ preventScroll: true });
+    const stopRocket = steerRocket(el, el.querySelector(".rocket"));
 
     let launched = false;
     function launch() {
       if (launched) return;
       launched = true;
+      stopRocket();
       el.removeEventListener("click", launch);
       window.removeEventListener("keydown", launch);
       el.classList.replace("is-ready", "is-launching");
