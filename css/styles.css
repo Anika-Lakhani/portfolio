@@ -8,7 +8,9 @@
   --red: #e50914;
   --nik-orange: #ff7a00;
   --gutter: 4%;
-  --card-w: 300px;
+  --card-gap: 8px;
+  --cards-visible: 4.5;
+  --card-w: calc((100vw - 2 * var(--gutter) - 4 * var(--card-gap)) / var(--cards-visible));
   --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -67,11 +69,11 @@ img { display: block; max-width: 100%; }
 .nav__profile:hover .caret { transform: rotate(180deg); }
 
 /* ---------- Home rows ---------- */
-.home { padding: 110px 0 80px; }
-.row { margin-bottom: 3rem; }
+.home { padding: 88px 0 48px; }
+.row { margin-bottom: 1.25rem; }
 .row__head {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;
-  margin: 0 var(--gutter) .8rem;
+  margin: 0 var(--gutter) .1rem;
 }
 .row__title {
   margin: 0;
@@ -89,15 +91,15 @@ img { display: block; max-width: 100%; }
 .row__viewport { position: relative; }
 .row__track {
   --tilt: 0deg;
-  display: flex; gap: 10px;
+  display: flex; gap: var(--card-gap);
   overflow-x: auto; scroll-snap-type: x mandatory;
-  padding: 18px var(--gutter) 22px;
+  padding: 12px var(--gutter) 14px; /* just enough room for the hover zoom */
   scroll-padding: 0 var(--gutter);
   scrollbar-width: none;
 }
 .row__track::-webkit-scrollbar { display: none; }
 .row__arrow {
-  position: absolute; top: 18px; bottom: 22px; z-index: 3;
+  position: absolute; top: 12px; bottom: 14px; z-index: 3;
   width: var(--gutter); min-width: 36px;
   border: 0; background: rgba(20,20,20,.6);
   font-size: 2.2rem; line-height: 1;
@@ -424,8 +426,11 @@ img { display: block; max-width: 100%; }
 @keyframes fade-out { to { opacity: 0; visibility: hidden; } }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  :root { --cards-visible: 3.5; }
+}
 @media (max-width: 800px) {
-  :root { --card-w: 62vw; --gutter: 16px; }
+  :root { --cards-visible: 2.3; --gutter: 16px; }
   .nav { gap: 1rem; padding: 12px var(--gutter); }
   .nav__links a { padding: .45rem .7rem; font-size: .85rem; }
   .nav__links a[target] { display: none; }
@@ -437,6 +442,10 @@ img { display: block; max-width: 100%; }
   .episode { grid-template-columns: 110px 1fr; padding: 1rem .5rem; }
   .episode__num { display: none; }
   .row__arrow { display: none; }
+  .badge { font-size: .6rem; padding: .2rem .4rem; }
+  .top10 { width: 22px; }
+  .top10 b { font-size: .75rem; }
+  .top10 small { font-size: .4rem; }
 }
 @media (max-width: 480px) {
   .nav__logo { font-size: 1.4rem; }
