@@ -2,9 +2,10 @@
  * The opening ident: an orange "nik" splat that pops in, holds, then zooms
  * through the camera and dissolves into the homepage.
  *
- * Browsers won't play sound until the visitor interacts with the page, so the
- * intro waits for one click/keypress before it starts. It only plays once per
- * browser session, and deep links (e.g. #/title/codemic) skip it entirely.
+ * It starts on its own as soon as the page loads. Browsers may block sound
+ * until the visitor has interacted with the site, in which case the logo
+ * still plays, just silently. It only plays once per browser session, and
+ * deep links (e.g. #/title/codemic) skip it entirely.
  */
 (function () {
   const SEEN_KEY = "nik-intro-seen";
@@ -54,6 +55,7 @@
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     const ctx = new AC();
+    ctx.resume().catch(() => {}); // succeeds only where the browser allows autoplaying sound
     const now = ctx.currentTime + 0.05;
     const master = ctx.createGain();
     master.gain.value = 0.9;
@@ -126,17 +128,10 @@
       setTimeout(() => { el.hidden = true; }, 650);
     }
 
-    function start() {
-      window.removeEventListener("keydown", start);
-      el.classList.add("is-playing");
-      playSting();
-      el.querySelector(".intro__logo").addEventListener("animationend", finish, { once: true });
-      setTimeout(finish, 4500); // safety net if animationend never fires
-    }
-
-    el.querySelector(".intro__start").addEventListener("click", start, { once: true });
-    window.addEventListener("keydown", start);
-    el.querySelector(".intro__skip").addEventListener("click", finish);
+    el.classList.add("is-playing");
+    playSting();
+    el.querySelector(".intro__logo").addEventListener("animationend", finish, { once: true });
+    setTimeout(finish, 4500); // safety net if animationend never fires
   }
 
   window.Intro = { run };

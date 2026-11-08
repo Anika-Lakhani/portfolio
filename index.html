@@ -11,15 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- UI font + the "show logo" fonts each project can pick from (see data/projects.js) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=Bowlby+One&family=Pacifico&family=Bungee&family=Bungee+Shade&family=Monoton&family=Righteous&family=Lobster&family=Permanent+Marker&family=Black+Ops+One&family=Fredoka:wght@600;700&family=Abril+Fatface&family=Rubik+Mono+One&family=Press+Start+2P&family=Shrikhand&family=Special+Elite&display=swap" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=2" />
 </head>
 <body>
   <!-- Intro: the "nik lakhani" ident that plays before the homepage -->
   <div id="intro" class="intro" hidden>
-    <button class="intro__start" type="button">
-      <span class="intro__play" aria-hidden="true">▶</span>
-      <span>Click anywhere to start</span>
-    </button>
     <div class="intro__stars" aria-hidden="true"></div>
     <div class="intro__logo" aria-label="nik lakhani">
       <svg class="intro__splat" viewBox="0 0 400 260" aria-hidden="true"></svg>
@@ -29,7 +25,6 @@
         <path d="M62 8a44 44 0 1 0 30 74A36 36 0 1 1 62 8z" />
       </svg>
     </div>
-    <button class="intro__skip" type="button">Skip intro</button>
   </div>
 
   <header class="nav" id="nav">
@@ -48,8 +43,8 @@
   <main id="app"></main>
   <div id="modal-root"></div>
 
-  <script src="data/projects.js"></script>
-  <script src="js/intro.js"></script>
-  <script src="js/app.js"></script>
+  <script src="data/projects.js?v=2"></script>
+  <script src="js/intro.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 </html>
