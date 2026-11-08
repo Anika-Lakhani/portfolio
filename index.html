@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anika Lakhani</title>
+  <meta name="description" content="Anika Lakhani's portfolio — now streaming." />
+  <meta name="theme-color" content="#141414" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- UI font + the "show logo" fonts each project can pick from (see data/projects.js) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=Bowlby+One&family=Pacifico&family=Bungee&family=Bungee+Shade&family=Monoton&family=Righteous&family=Lobster&family=Permanent+Marker&family=Black+Ops+One&family=Fredoka:wght@600;700&family=Abril+Fatface&family=Rubik+Mono+One&family=Press+Start+2P&family=Shrikhand&family=Special+Elite&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Intro: the "nik lakhani" ident that plays before the homepage -->
+  <div id="intro" class="intro" hidden>
+    <button class="intro__start" type="button">
+      <span class="intro__play" aria-hidden="true">▶</span>
+      <span>Click anywhere to start</span>
+    </button>
+    <div class="intro__stars" aria-hidden="true"></div>
+    <div class="intro__logo" aria-label="nik lakhani">
+      <svg class="intro__splat" viewBox="0 0 400 260" aria-hidden="true"></svg>
+      <span class="intro__nik">nik</span>
+      <span class="intro__lakhani">lakhani</span>
+      <svg class="intro__moon" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M62 8a44 44 0 1 0 30 74A36 36 0 1 1 62 8z" />
+      </svg>
+    </div>
+    <button class="intro__skip" type="button">Skip intro</button>
+  </div>
+
+  <header class="nav" id="nav">
+    <a class="nav__logo" href="#/">Anika Lakhani</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#/" data-route="home">Home</a>
+      <a href="#/about" data-route="about">About</a>
+      <a href="https://github.com/Anika-Lakhani" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="nav__profile" href="#/about" aria-label="About me">
+      <span class="avatar">AL</span>
+      <span class="caret" aria-hidden="true"></span>
+    </a>
+  </header>
+
+  <main id="app"></main>
+  <div id="modal-root"></div>
+
+  <script src="data/projects.js"></script>
+  <script src="js/intro.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
