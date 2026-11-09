@@ -31,7 +31,55 @@
     thumb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 11v9H4v-9h3zm0 0l4-8c1.7 0 2.5 1 2.2 2.6L12.6 9H19a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7"/></svg>',
     soundOn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
     soundOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   };
+
+  const yearOf = (p) => (p.created || "").match(/\d{4}/)?.[0] || "";
+
+  // "New Season · 2026 · 3 Episodes · HD"
+  function metaLine(p) {
+    const n = (p.episodes || []).length;
+    return `
+      <div class="meta-line">
+        ${p.badge ? `<span class="new">${esc(p.badge)}</span>` : ""}
+        ${yearOf(p) ? `<span>${yearOf(p)}</span>` : ""}
+        <span>${n} Episode${n === 1 ? "" : "s"}</span>
+        <span class="pill">HD</span>
+      </div>`;
+  }
+
+  function likeButton(id) {
+    const on = getLikes().has(id);
+    return `<button class="btn-circle like ${on ? "is-on" : ""}" data-id="${esc(id)}" aria-pressed="${on}" aria-label="I like this">${icons.thumb}</button>`;
+  }
+
+  function wireLike(btn) {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const on = !btn.classList.contains("is-on");
+      btn.classList.toggle("is-on", on);
+      btn.setAttribute("aria-pressed", on);
+      setLiked(btn.dataset.id, on);
+    };
+  }
+
+  // Muted autoplay demo: fades in once frames arrive; on error the key art underneath stays as the thumbnail
+  function wireVideo(video, muteBtn) {
+    if (!video) return;
+    video.addEventListener("playing", () => video.classList.add("is-playing"));
+    video.addEventListener("error", () => { video.remove(); muteBtn?.remove(); });
+    video.play?.().catch(() => {});
+    if (!muteBtn) return;
+    muteBtn.onclick = () => {
+      video.muted = !video.muted;
+      muteBtn.innerHTML = video.muted ? icons.soundOff : icons.soundOn;
+      muteBtn.setAttribute("aria-label", video.muted ? "Turn sound on" : "Turn sound off");
+    };
+  }
+
+  const demoVideo = (p) => (p.video ? `<video src="${esc(p.video)}" autoplay muted loop playsinline preload="auto"></video>` : "");
+  const muteButton = (cls) => `<button class="btn-circle ${cls}" aria-label="Turn sound on">${icons.soundOff}</button>`;
 
   // Key art: a real image if the project has one, otherwise a painted gradient
   // with the title set in the project's font. `shift` varies the art for episodes.
@@ -52,10 +100,51 @@
   function renderHome() {
     if (app.dataset.view === "home") return; // keep scroll position when closing a listing
     app.dataset.view = "home";
-    app.innerHTML = `<div class="home">${rows.map(renderRow).join("")}</div>`;
+    app.innerHTML = `<div class="home">${renderBillboard()}<div class="home__rows">${rows.map(renderRow).join("")}</div></div>`;
+    wireBillboard();
     app.querySelectorAll(".row").forEach(wireRow);
     introDone.then(() => revealRows(app.querySelectorAll(".row")));
   }
+
+  // ---------- Billboard (the big featured project at the top of the homepage) ----------
+  function renderBillboard() {
+    const f = window.PORTFOLIO.featured;
+    const p = f && projects[f.id];
+    if (!p) return "";
+    return `
+      <section class="billboard">
+        ${art(p, { title: "" })}
+        ${demoVideo(p)}
+        <div class="billboard__shade"></div>
+        <div class="billboard__content">
+          <div class="billboard__kicker"><b>A</b> PROJECT</div>
+          <h1 class="billboard__title" style="font-family:'${esc(p.font)}'">${esc(p.title)}</h1>
+          ${p.top10 ? '<div class="billboard__rank"><span class="rank-badge"><small>TOP</small>10</span>#1 in Projects Today</div>' : ""}
+          <p class="billboard__pitch">${esc(f.pitch || p.description)}</p>
+          <div class="billboard__actions">
+            <a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>
+            <a class="btn-info" href="#/title/${esc(f.id)}">${icons.info}More Info</a>
+          </div>
+        </div>
+        ${p.video ? muteButton("billboard__mute") : ""}
+      </section>`;
+  }
+
+  function wireBillboard() {
+    const bb = app.querySelector(".billboard");
+    const video = bb?.querySelector("video");
+    if (!video) return;
+    wireVideo(video, bb.querySelector(".billboard__mute"));
+    // Pause the trailer when it's scrolled away or a listing is open on top
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting && !modalRoot.innerHTML) video.play?.().catch(() => {});
+        else video.pause();
+      }, { threshold: 0.25 }).observe(bb);
+    }
+  }
+
+  function billboardVideo() { return app.querySelector(".billboard video"); }
 
   // Rows slide in as they scroll into view (waits until the intro has finished)
   function revealRows(rowEls) {
@@ -137,6 +226,82 @@
     update();
   }
 
+  // ---------- Hover preview ----------
+  // Resting on a card for a moment grows it into a mini listing with the demo
+  // playing. Only on devices with a real mouse; touch just taps through.
+  const preview = document.createElement("div");
+  preview.className = "preview";
+  document.body.appendChild(preview);
+  const PREVIEW_SCALE = 1.5;
+  let hoverTimer = null, pendingCard = null;
+
+  function showPreview(card) {
+    const id = card.getAttribute("href").split("/").pop();
+    const p = projects[id];
+    if (!p || modalRoot.innerHTML) return;
+
+    const r = card.getBoundingClientRect();
+    const w = r.width * PREVIEW_SCALE;
+    const artH = (w * 9) / 16;
+    const vw = document.documentElement.clientWidth;
+    // Keep the popup on screen at the row ends; it grows out of the card's own position
+    const left = Math.min(Math.max(r.left + r.width / 2 - w / 2, 8), vw - w - 8);
+    preview.innerHTML = `
+      <a class="preview__art" href="#/title/${id}" aria-label="${esc(p.title)}">${art(p)}${demoVideo(p)}</a>
+      <div class="preview__body">
+        <div class="preview__actions">
+          <a class="btn-circle btn-circle--solid" href="${esc(p.link)}" target="_blank" rel="noopener" aria-label="Watch now">${icons.play}</a>
+          ${likeButton(id)}
+          <a class="btn-circle preview__more" href="#/title/${id}" aria-label="More info">${icons.chevron}</a>
+        </div>
+        ${metaLine(p)}
+        <div class="preview__tags">${(p.tags || []).map(esc).join('<i aria-hidden="true">•</i>')}</div>
+      </div>`;
+    wireLike(preview.querySelector(".like"));
+    wireVideo(preview.querySelector("video"));
+
+    // Center the art over the card, but nudge the popup to stay between the nav and the screen bottom
+    preview.style.width = `${w}px`;
+    const h = preview.offsetHeight;
+    let top = r.top - (artH - r.height) / 2;
+    top = Math.max(72, Math.min(top, window.innerHeight - h - 8));
+    preview.style.cssText =
+      `left:${left + window.scrollX}px;top:${top + window.scrollY}px;width:${w}px;` +
+      `--origin-x:${r.left + r.width / 2 - left}px;--origin-y:${r.top + r.height / 2 - top}px;--from:${1 / PREVIEW_SCALE}`;
+
+    preview.classList.remove("is-open");
+    void preview.offsetWidth; // restart the grow animation
+    preview.classList.add("is-open");
+  }
+
+  function hidePreview() {
+    clearTimeout(hoverTimer);
+    pendingCard = null;
+    if (!preview.classList.contains("is-open")) return;
+    preview.classList.remove("is-open");
+    preview.querySelector("video")?.pause();
+  }
+
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    app.addEventListener("mouseover", (e) => {
+      const card = e.target.closest(".card");
+      if (!card || card === pendingCard) return;
+      clearTimeout(hoverTimer);
+      pendingCard = card;
+      hoverTimer = setTimeout(() => showPreview(card), 450);
+    });
+    app.addEventListener("mouseout", (e) => {
+      const card = e.target.closest(".card");
+      if (!card || card.contains(e.relatedTarget)) return;
+      clearTimeout(hoverTimer);
+      pendingCard = null;
+    });
+    preview.addEventListener("mouseleave", hidePreview);
+    preview.addEventListener("click", (e) => { if (e.target.closest('a[href^="#"]')) hidePreview(); });
+    // Any scroll (page or row) would leave the popup floating in the wrong place
+    document.addEventListener("scroll", hidePreview, { capture: true, passive: true });
+  }
+
   // ---------- Project listing (modal) ----------
   let lastFocus = null;
 
@@ -144,9 +309,9 @@
     const p = projects[id];
     if (!p) return closeListing();
     lastFocus = document.activeElement;
-    const liked = getLikes().has(id);
+    hidePreview();
+    billboardVideo()?.pause();
     const eps = p.episodes || [];
-    const year = (p.created || "").match(/\d{4}/)?.[0] || "";
 
     modalRoot.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="listing-title">
@@ -155,26 +320,21 @@
 
           <div class="hero">
             ${art(p, { title: "" })}
-            ${p.video ? `<video src="${esc(p.video)}" autoplay muted loop playsinline preload="auto"></video>` : ""}
+            ${demoVideo(p)}
             <div class="hero__fade"></div>
             <div class="hero__content">
               <h1 class="hero__title" style="font-family:'${esc(p.font)}'">${esc(p.title)}</h1>
               <div class="hero__actions">
                 <a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>
-                <button class="btn-circle like ${liked ? "is-on" : ""}" aria-pressed="${liked}" aria-label="I like this">${icons.thumb}</button>
+                ${likeButton(id)}
               </div>
             </div>
-            ${p.video ? `<button class="btn-circle hero__mute" aria-label="Turn sound on">${icons.soundOff}</button>` : ""}
+            ${p.video ? muteButton("hero__mute") : ""}
           </div>
 
           <div class="details">
             <div>
-              <div class="meta-line">
-                ${p.badge ? `<span class="new">${esc(p.badge)}</span>` : ""}
-                ${year ? `<span>${year}</span>` : ""}
-                <span>${eps.length} Episode${eps.length === 1 ? "" : "s"}</span>
-                <span class="pill">HD</span>
-              </div>
+              ${metaLine(p)}
               <div class="meta-line">${(p.tags || []).map((t) => `<span class="pill">${esc(t)}</span>`).join("")}</div>
               <h2 class="details__title" id="listing-title">${esc(p.title)}</h2>
               <p class="details__desc">${esc(p.description)}</p>
@@ -210,33 +370,15 @@
     modal.querySelector(".modal__close").onclick = goHome;
     modal.querySelector(".modal__close").focus({ preventScroll: true });
 
-    const likeBtn = modal.querySelector(".like");
-    likeBtn.onclick = () => {
-      const on = !likeBtn.classList.contains("is-on");
-      likeBtn.classList.toggle("is-on", on);
-      likeBtn.setAttribute("aria-pressed", on);
-      setLiked(id, on);
-    };
-
-    // Demo video: fade in once frames arrive; if it fails, the key art stays as the thumbnail
-    const video = modal.querySelector("video");
-    if (video) {
-      const mute = modal.querySelector(".hero__mute");
-      video.addEventListener("playing", () => video.classList.add("is-playing"));
-      video.addEventListener("error", () => { video.remove(); mute.remove(); });
-      video.play?.().catch(() => {});
-      mute.onclick = () => {
-        video.muted = !video.muted;
-        mute.innerHTML = video.muted ? icons.soundOff : icons.soundOn;
-        mute.setAttribute("aria-label", video.muted ? "Turn sound on" : "Turn sound off");
-      };
-    }
+    wireLike(modal.querySelector(".like"));
+    wireVideo(modal.querySelector("video"), modal.querySelector(".hero__mute"));
   }
 
   function closeListing() {
     if (!modalRoot.innerHTML) return;
     modalRoot.innerHTML = "";
     document.body.classList.remove("no-scroll");
+    billboardVideo()?.play?.().catch(() => {});
     lastFocus?.focus?.({ preventScroll: true });
   }
 
@@ -316,7 +458,7 @@
     if (e.key === "Escape" && modalRoot.innerHTML) goHome();
   });
   window.addEventListener("scroll", () => nav.classList.toggle("is-solid", window.scrollY > 40), { passive: true });
-  window.addEventListener("hashchange", route);
+  window.addEventListener("hashchange", () => { hidePreview(); route(); });
 
   let markIntroDone;
   const introDone = new Promise((resolve) => { markIntroDone = resolve; });

@@ -13,6 +13,7 @@
  *   link          Where "Watch Now" goes (usually the GitHub repo)
  *   badge         (optional) "New Season", "Recently Added", "New Episodes"...
  *   top10         (optional) true shows the TOP 10 flag
+ *   tags          Short labels shown on the listing and hover preview
  *   episodes      Components of the project: { title, duration, description, image? }
  *
  * NOTE: dates/collaborators/episodes below are placeholders unless you've
@@ -26,6 +27,12 @@ window.PORTFOLIO = {
   owner: {
     name: "Anika Lakhani",
     github: "https://github.com/Anika-Lakhani",
+  },
+
+  // The big banner at the top of the homepage. `pitch` is optional (falls back to the description).
+  featured: {
+    id: "heart-risk",
+    pitch: "Three clinical calculators, one heart, and a lot of uncertainty. See how sure your risk score really is, built with South Asians in mind.",
   },
 
   rows: [
