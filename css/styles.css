@@ -239,6 +239,9 @@ img { display: block; max-width: 100%; }
 .art::before { width: 70%; aspect-ratio: 1; right: -18%; top: -30%; background: var(--a3); }
 .art::after { width: 45%; aspect-ratio: 1; left: -10%; bottom: -25%; background: var(--a1); opacity: .6; }
 .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.art--image::before, .art--image::after { display: none; }
+/* Screenshots behind a big title (listing header, billboard) are dimmed so the title stays readable */
+.hero .art--image img, .billboard .art--image img { filter: brightness(.4) saturate(.85); object-position: top; }
 .art__title {
   position: relative; z-index: 1;
   font-size: clamp(14px, 11cqw, 64px);
@@ -380,6 +383,20 @@ img { display: block; max-width: 100%; }
 .episode__thumb .art__title { font-size: clamp(10px, 11cqw, 22px); }
 .episode__top { display: flex; justify-content: space-between; gap: 1rem; font-weight: 700; margin-bottom: .4rem; }
 .episode p { margin: 0; color: var(--text-dim); font-size: .92rem; line-height: 1.45; }
+.episode__kind {
+  flex-shrink: 0;
+  color: var(--text-faint); font-weight: 600;
+  font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+}
+.episode__you, .episode__agents { display: block; }
+.episode__you b, .episode__agents b {
+  display: block; margin-bottom: .15rem;
+  font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+}
+.episode p.episode__you { color: #e5e5e5; font-size: 1rem; margin-bottom: .8rem; }
+.episode__you b { color: #46d369; }
+.episode p.episode__agents { font-size: .88rem; }
+.episode__agents b { color: var(--text-faint); }
 
 /* ---------- About ---------- */
 .about { padding-bottom: 80px; }

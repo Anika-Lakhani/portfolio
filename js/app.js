@@ -35,6 +35,17 @@
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   };
 
+  // Labels for the episode types a project can have, in their usual order
+  const EPISODE_KINDS = {
+    why: "The Why",
+    change: "What Changed",
+    split: "My Call vs. the Agents'",
+    moment: "The Moment",
+    trust: "Getting It Right",
+    outcome: "The Outcome",
+    open: "Still Open",
+  };
+
   const yearOf = (p) => (p.created || "").match(/\d{4}/)?.[0] || "";
 
   // "New Season · 2026 · 3 Episodes · HD"
@@ -89,7 +100,7 @@
     const inner = image
       ? `<img src="${esc(image)}" alt="" loading="lazy" />`
       : `${num != null ? `<span class="art__num">${num}</span>` : ""}<span class="art__title" style="font-family:'${esc(p.font)}'">${esc(title)}</span>`;
-    return `<div class="art" style="${style}">${inner}</div>`;
+    return `<div class="art${image ? " art--image" : ""}" style="${style}">${inner}</div>`;
   }
 
   function setActiveNav(route) {
@@ -113,14 +124,14 @@
     if (!p) return "";
     return `
       <section class="billboard">
-        ${art(p, { title: "" })}
+        ${art(p, { title: "", image: p.poster || p.image })}
         ${demoVideo(p)}
         <div class="billboard__shade"></div>
         <div class="billboard__content">
           <div class="billboard__kicker"><b>A</b> PROJECT</div>
           <h1 class="billboard__title" style="font-family:'${esc(p.font)}'">${esc(p.title)}</h1>
           ${p.top10 ? '<div class="billboard__rank"><span class="rank-badge"><small>TOP</small>10</span>#1 in Projects Today</div>' : ""}
-          <p class="billboard__pitch">${esc(f.pitch || p.description)}</p>
+          <p class="billboard__pitch">${esc(f.pitch || p.pitch || p.description)}</p>
           <div class="billboard__actions">
             <a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>
             <a class="btn-info" href="#/title/${esc(f.id)}">${icons.info}More Info</a>
@@ -319,7 +330,7 @@
           <button class="modal__close" aria-label="Close">✕</button>
 
           <div class="hero">
-            ${art(p, { title: "" })}
+            ${art(p, { title: "", image: p.poster || p.image })}
             ${demoVideo(p)}
             <div class="hero__fade"></div>
             <div class="hero__content">
@@ -337,7 +348,7 @@
               ${metaLine(p)}
               <div class="meta-line">${(p.tags || []).map((t) => `<span class="pill">${esc(t)}</span>`).join("")}</div>
               <h2 class="details__title" id="listing-title">${esc(p.title)}</h2>
-              <p class="details__desc">${esc(p.description)}</p>
+              <p class="details__desc">${esc(p.pitch || p.description)}</p>
             </div>
             <div class="facts">
               <p><span>Date created:</span> ${esc(p.created)}</p>
@@ -351,15 +362,7 @@
           ${eps.length ? `
           <section class="episodes">
             <div class="episodes__head"><h3>Episodes</h3><span>${esc(p.title)}</span></div>
-            ${eps.map((e, i) => `
-              <div class="episode">
-                <div class="episode__num">${i + 1}</div>
-                <div class="episode__thumb">${art(p, { title: e.title, num: i + 1, image: e.image, shift: i + 1 })}</div>
-                <div>
-                  <div class="episode__top"><span>${esc(e.title)}</span><span>${esc(e.duration || "")}</span></div>
-                  <p>${esc(e.description)}</p>
-                </div>
-              </div>`).join("")}
+            ${eps.map((e, i) => renderEpisode(p, e, i)).join("")}
           </section>` : ""}
         </article>
       </div>`;
@@ -372,6 +375,28 @@
 
     wireLike(modal.querySelector(".like"));
     wireVideo(modal.querySelector("video"), modal.querySelector(".hero__mute"));
+  }
+
+  // Each episode answers one of the standard questions about a project (see EPISODE_KINDS).
+  // The "split" episode separates the owner's calls from what the agents built.
+  function renderEpisode(p, e, i) {
+    const kind = EPISODE_KINDS[e.kind];
+    const body = e.kind === "split" && (e.you || e.agents)
+      ? `${e.you ? `<p class="episode__you"><b>My call</b>${esc(e.you)}</p>` : ""}
+         ${e.agents ? `<p class="episode__agents"><b>What the agents built</b>${esc(e.agents)}</p>` : ""}`
+      : `<p>${esc(e.description)}</p>`;
+    return `
+      <div class="episode">
+        <div class="episode__num">${i + 1}</div>
+        <div class="episode__thumb">${art(p, { title: e.title, num: i + 1, image: e.image, shift: i + 1 })}</div>
+        <div>
+          <div class="episode__top">
+            <span>${esc(e.title)}</span>
+            <span class="episode__kind">${esc(kind || e.duration || "")}</span>
+          </div>
+          ${body}
+        </div>
+      </div>`;
   }
 
   function closeListing() {
