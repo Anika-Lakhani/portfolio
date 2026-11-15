@@ -32,6 +32,7 @@
     soundOn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
     soundOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
     info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+    expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   };
 
@@ -39,6 +40,7 @@
   const EPISODE_KINDS = {
     why: "The Why",
     change: "What Changed",
+    impact: "Why It Matters",
     split: "My Call vs. the Agents'",
     moment: "The Moment",
     trust: "Getting It Right",
@@ -378,6 +380,9 @@
 
     wireLike(modal.querySelector(".like"));
     wireVideo(modal.querySelector("video"), modal.querySelector(".hero__mute"));
+    modal.querySelectorAll(".episode__thumb--zoom").forEach((btn) => {
+      btn.onclick = () => openLightbox(btn.dataset.full, btn.dataset.caption, btn);
+    });
   }
 
   // Each episode answers one of the standard questions about a project (see EPISODE_KINDS).
@@ -391,7 +396,12 @@
     return `
       <div class="episode">
         <div class="episode__num">${i + 1}</div>
-        <div class="episode__thumb">${art(p, { title: e.title, num: i + 1, image: e.image, shift: i + 1 })}</div>
+        ${e.image
+          ? `<button class="episode__thumb episode__thumb--zoom" data-full="${esc(e.full || e.image)}" data-caption="${esc(e.title)}" aria-label="Expand image: ${esc(e.title)}">
+              ${art(p, { title: e.title, num: i + 1, image: e.image, shift: i + 1 })}
+              <span class="episode__zoom" aria-hidden="true">${icons.expand}</span>
+            </button>`
+          : `<div class="episode__thumb">${art(p, { title: e.title, num: i + 1, shift: i + 1 })}</div>`}
         <div>
           <div class="episode__top">
             <span>${esc(e.title)}</span>
@@ -402,8 +412,38 @@
       </div>`;
   }
 
+  // ---------- Lightbox (expanded episode image) ----------
+  let lightboxReturn = null;
+
+  function openLightbox(src, caption, from) {
+    lightboxReturn = from;
+    const box = document.createElement("div");
+    box.className = "lightbox";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-label", caption);
+    box.innerHTML = `
+      <button class="lightbox__close" aria-label="Close image">✕</button>
+      <figure class="lightbox__figure">
+        <img src="${esc(src)}" alt="${esc(caption)}" />
+        <figcaption>${esc(caption)}</figcaption>
+      </figure>`;
+    document.body.appendChild(box);
+    box.addEventListener("click", (e) => { if (!e.target.closest("img")) closeLightbox(); });
+    box.querySelector(".lightbox__close").focus({ preventScroll: true });
+  }
+
+  function closeLightbox() {
+    const box = document.querySelector(".lightbox");
+    if (!box) return false;
+    box.remove();
+    lightboxReturn?.focus?.({ preventScroll: true });
+    return true;
+  }
+
   function closeListing() {
     if (!modalRoot.innerHTML) return;
+    closeLightbox();
     modalRoot.innerHTML = "";
     document.body.classList.remove("no-scroll");
     billboardVideo()?.play?.().catch(() => {});
@@ -432,7 +472,10 @@
             <div class="about__kicker"><b>A</b> ORIGINAL SERIES</div>
             <h1 class="about__name">${esc(owner.name)}</h1>
             <p class="about__logline">An engineer who builds friendly tools for serious problems — from heart-risk calculators to debugging what image models actually learn.</p>
-            <a class="btn-play" href="#/">${icons.play}Browse Projects</a>
+            <div class="about__actions">
+              <a class="btn-play" href="#/">${icons.play}Browse Projects</a>
+              <button class="btn-info" id="switch-profile" type="button">Switch profile</button>
+            </div>
           </div>
         </section>
 
@@ -464,6 +507,7 @@
           </aside>
         </div>
       </div>`;
+    app.querySelector("#switch-profile").onclick = () => window.Profiles.show(() => goHome());
     window.scrollTo(0, 0);
   }
 
@@ -483,7 +527,9 @@
   }
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modalRoot.innerHTML) goHome();
+    if (e.key !== "Escape") return;
+    if (closeLightbox()) return; // Esc closes the expanded image first, then the listing
+    if (modalRoot.innerHTML) goHome();
   });
   window.addEventListener("scroll", () => nav.classList.toggle("is-solid", window.scrollY > 40), { passive: true });
   window.addEventListener("hashchange", () => { hidePreview(); route(); });
@@ -492,5 +538,6 @@
   const introDone = new Promise((resolve) => { markIntroDone = resolve; });
 
   route();
-  window.Intro.run(() => markIntroDone());
+  // Intro → "Who's watching?" → homepage rows animate in
+  window.Intro.run(() => window.Profiles.run(() => markIntroDone()));
 })();

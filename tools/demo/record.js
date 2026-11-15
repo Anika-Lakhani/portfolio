@@ -34,6 +34,20 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 });
   await page.addInitScript(CURSOR);
 
+  // Safety: this records the live site, so block anything that could write a donation.
+  // Reads (like the contributor count) still go through.
+  const blocked = [];
+  await page.route("**/*", (route) => {
+    const req = route.request();
+    const writes = req.method() !== "GET" && req.method() !== "HEAD" && req.method() !== "OPTIONS";
+    const readOnlyRpc = /\/rpc\/contributor_count/.test(req.url()); // a read that happens to use POST
+    if (writes && !readOnlyRpc && /supabase|functions|turnstile|challenges\.cloudflare/i.test(req.url())) {
+      blocked.push(`${req.method()} ${req.url()}`);
+      return route.abort();
+    }
+    return route.continue();
+  });
+
   const frames = [];
   const cdp = await page.context().newCDPSession(page);
   cdp.on("Page.screencastFrame", async ({ data, metadata, sessionId }) => {
@@ -69,7 +83,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 1 });
   await sleep(1500);
 
-  // Step 1: about you
+  // Step 1: about you. First the ineligible path: someone who's already had a heart event
+  // gets an explanation instead of a misleading score, and an invitation to donate.
+  await click(page.getByRole("button", { name: "Yes", exact: true }), 900);
+  const why = page.getByRole("button", { name: "Learn why" });
+  if (await why.count()) await click(why, 1600);
+  await moveTo(page.getByRole("button", { name: /Donate my data/ }));
+  await sleep(1400);
+  await shot("0-ineligible");
   await click(page.getByRole("button", { name: "No", exact: true }));
   await click(page.getByRole("button", { name: "Male", exact: true }));
   const ancestry = page.locator("select").first();
@@ -120,11 +141,43 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // People like you
   await click(page.getByText("Compare with people like you").first(), 1800);
   await smoothScrollTo(page.locator(".dotplots").first(), 120);
-  await sleep(2600);
+  await sleep(2400);
   await shot("8-peers");
+
+  // Donate my data, from the results page
+  const card = page.locator(".donate-card");
+  await smoothScrollTo(card, 220);
+  await sleep(900);
+  await click(card.getByRole("button", { name: /Learn more and donate/ }), 1400);
+  await page.mouse.move(1150, 420, { steps: 12 });
+  await sleep(1200);
+  await shot("9-story");
+  const flatten = page.getByText("The system flattens it").first();
+  if (await flatten.count()) { await smoothScrollTo(flatten, 120); await sleep(1800); }
+  const consent = page.locator(".consent-check input");
+  await smoothScrollTo(consent, 380);
+  await click(consent, 800);
+  await click(page.getByRole("button", { name: /^Start/ }), 1400);
+  await shot("10-survey");
+  // Answer a couple of research questions, then stop: Submit is never clicked
+  const fields = page.locator(".survey-card .survey-field");
+  for (let i = 0; i < Math.min(2, await fields.count()); i++) {
+    const opt = fields.nth(i).locator(".survey-options button").first();
+    if (await opt.count()) await click(opt, 700);
+  }
+  await moveTo(page.locator(".survey-card .primary-button").first());
+  await sleep(1500);
 
   await cdp.send("Page.stopScreencast");
   await sleep(300);
+
+  // Stills of the privacy page for the portfolio's "Whose detail goes first?" episode
+  await page.goto(URL + "#privacy", { waitUntil: "networkidle" });
+  await page.evaluate(() => document.getElementById("__cursor")?.remove());
+  await sleep(800);
+  await page.screenshot({ path: path.join(outDir, "privacy-full.png"), fullPage: true });
+  await page.screenshot({ path: path.join(outDir, "privacy.png") });
+  console.log(`blocked writes: ${blocked.length}`, blocked.slice(0, 3));
   fs.writeFileSync(path.join(outDir, "frames.json"), JSON.stringify(frames));
   console.log(`frames: ${frames.length}, seconds: ${(frames.at(-1).t - frames[0].t).toFixed(1)}`);
   await browser.close();

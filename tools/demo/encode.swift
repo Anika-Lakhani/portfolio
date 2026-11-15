@@ -21,7 +21,7 @@ let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
   AVVideoCodecKey: AVVideoCodecType.h264,
   AVVideoWidthKey: W, AVVideoHeightKey: H,
   AVVideoCompressionPropertiesKey: [
-    AVVideoAverageBitRateKey: 2_200_000,
+    AVVideoAverageBitRateKey: 1_900_000,
     AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel,
     AVVideoMaxKeyFrameIntervalKey: Int(fps) * 2,
   ],

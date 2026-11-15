@@ -19,13 +19,15 @@
  *   episodes      Short stories about the project, each answering one question (`kind`):
  *                   why      What was going wrong, or what need started it?
  *                   change   What it does that the old way didn't
+ *                   impact   Why it matters beyond the project (who's affected, at what scale)
  *                   split    My calls vs. what the agents built (use `you` and `agents`
  *                            instead of `description`; my judgement is the main point)
  *                   moment   One concrete story: a decision, a bug caught, some feedback
  *                   trust    How I made sure it was right
  *                   outcome  Who uses it, what changed, who said what (by role)
  *                   open     What's still open, or what I'd do differently
- *                 Each one: { kind, title, description, image? }
+ *                 Each one: { kind, title, description, image?, full? }
+ *                 `image` is the 16:9 thumbnail; `full` is the uncropped version shown when it's clicked
  *
  * NOTE: dates/collaborators/episodes below are placeholders unless you've
  * replaced them. Descriptions are pulled from the GitHub repos where they exist.
@@ -62,7 +64,7 @@ window.PORTFOLIO = {
       badge: "New Season",
       top10: true,
       poster: "assets/heart-risk/results.jpg",
-      video: "assets/heart-risk/demo.mp4",
+      video: "assets/heart-risk/demo.mp4?v=2",
       link: "https://anika-lakhani.github.io/south-asian-heart-risk/",
       pitch:
         "Heart-risk calculators give South Asians answers that differ threefold, and a single blood-pressure reading can't tell you which side of a treatment line you're on. I built a tool that makes both kinds of uncertainty visible, grounded in published clinical models and HCI research, plus a privacy-first way to collect the South Asian data that's missing.",
@@ -79,52 +81,57 @@ window.PORTFOLIO = {
           kind: "why",
           title: "Same Person, Three Answers",
           image: "assets/heart-risk/results.jpg",
+          full: "assets/heart-risk/results-full.jpg",
           description:
-            "For one 48-year-old Pakistani man with ordinary numbers, the three calculators clinicians use say 4.0%, 2.4% and 7.5%. One scores South Asians as white, one leaves race out, and only one sees ancestry. None of them tell him that blood-pressure noise alone puts him past the statin line in 10 of 20 re-measurements.",
+            "For one 48-year-old Pakistani man with ordinary numbers, the three calculators clinicians use report risks of 4.0%, 2.4% and 7.5%. Depending on the risk score used, he could be left untreated or put on a statin, and those differences matter all the more for South Asians, since we face elevated heart risk. South Asians are owed ample context on their heart risk so they can take preventive action early.",
         },
         {
           kind: "change",
           title: "Three Answers, Not One Verdict",
           image: "assets/heart-risk/peers.jpg",
+          full: "assets/heart-risk/peers-full.jpg",
           description:
             "The class prototype's risk score always returned zero, and its \"South Asian adjustment\" was a guessed ×1.5. The rebuild shows all three published calculators side by side, uses quantile dotplots of 20 equally likely re-measurements, and compares you with measured peers from NHANES, telling you plainly when the data lumps all Asian Americans together.",
         },
         {
-          kind: "split",
-          title: "My Calls, Claude's Code",
-          image: "assets/heart-risk/redesign.jpg",
-          you:
-            "Show the disagreement instead of picking a winner. Never nudge a probability to feel better. Drop Streamlit for a static app that never sleeps, keep the survey-data model out of the app, and pull the data-sharing checkbox until there was a real privacy system behind it. I redesigned the interface in Figma Make.",
-          agents:
-            "Claude Code implemented the three calculators from their published equations, generated the TypeScript models from Python with parity tests, drew the SVG charts, and built the donation database, release script and test suite.",
+          kind: "impact",
+          title: "A Billion Hearts, Barely Studied",
+          image: "assets/heart-risk/donate-flatten.jpg",
+          full: "assets/heart-risk/donate-full.jpg",
+          description:
+            "Heart disease is a serious health need for the more than a billion South Asians worldwide, whose first heart attacks come about six years earlier on average. Yet research barely sees them: from 1992 to 2018, just 0.17% of the NIH budget went to clinical research on Asian Americans and Pacific Islanders, and US health surveys file every South Asian group under \"Asian.\" A dataset built with and for South Asians is how risk tools start to fit the people who need them most.",
         },
         {
           kind: "moment",
           title: "Whose Detail Goes First?",
-          image: "assets/heart-risk/donate.jpg",
+          image: "assets/heart-risk/privacy.jpg",
+          full: "assets/heart-risk/privacy-full.jpg",
           description:
             "To anonymize donated data, rare combinations get coarsened until each describes at least 5 people. The first version blurred rare South Asian groups first, which is the very detail the dataset exists for. Reordering so region and age give way first took releasable donors from 50% to about 94%, and kept Sri Lankan and Nepali donors' exact ancestry.",
         },
         {
           kind: "trust",
-          title: "506 Tests and a Break-In",
+          title: "Trying to Break It",
           image: "assets/heart-risk/results-dark.jpg",
+          full: "assets/heart-risk/results-dark-full.jpg",
           description:
-            "QRISK3 matches 48 profiles scored by its authors' own code. The browser's TypeScript must match Python on 300 random profiles to 12 decimal places, or the build fails. I attacked the live database with the website's public key, trying to read, change, delete, backdate and flood it: every attempt was refused, and two real bugs surfaced and got tests.",
+            "Two kinds of confidence. First, that the numbers are right: each calculator reproduces its authors' published reference values (QRISK3 matches 48 profiles scored by its original code), and the browser's models must match the Python ones on 300 random profiles to 12 decimal places or the site won't deploy, 506 automated tests in all. Second, that the privacy promises hold: I attacked my own live database with the website's public key, trying to read, change, delete, backdate and flood it. Every attempt was refused, and the two real bugs it surfaced are now covered by tests.",
         },
         {
           kind: "outcome",
           title: "The Data Got It Backwards",
           image: "assets/heart-risk/explanation.png",
+          full: "assets/heart-risk/explanation.png",
           description:
-            "The app is live and accepting anonymous data donations. Testing what standard US survey data would say made the case for it: a model trained on 273,266 CDC respondents says being Asian lowers heart risk, because the survey pools every Asian group into one box. That's the opposite of what the clinical research shows for South Asians.",
+            "The app is live and accepting anonymous data donations. A model trained on 273,266 CDC respondents incorrectly shows that being Asian lowers heart risk, because the survey pools every Asian group into one box. That's the opposite of what the clinical research shows for South Asians: being South Asian elevates one's heart risk. Building a South Asian-specific dataset can help correct this dangerous underemphasis on South Asian heart risk.",
         },
         {
           kind: "open",
           title: "Next Season",
           image: "assets/heart-risk/intake.jpg",
+          full: "assets/heart-risk/intake-full.jpg",
           description:
-            "A five-person usability study to check whether people read the dotplots correctly. Recruiting donors through South Asian student associations and community groups, so \"people like you\" can compare against South Asian peers. Calibrating against the MASALA study, and asking clinicians whether the results page helps a real conversation about statins.",
+            "A five-person usability study to check whether people read the dotplots correctly. Recruiting donors through South Asian student associations and community groups, so \"people like you\" can compare against South Asian peers. Calibrating against the MASALA study, and asking clinicians whether the results page helps a real conversation about statins. And, hopefully, partnering with the South Asian Heart Center in California's Bay Area to bring this free tool to the people who need it.",
         },
       ],
     },
