@@ -11,7 +11,7 @@
  *   image         (optional) path to a real card thumbnail, e.g. "assets/heart.jpg"
  *   poster        (optional) screenshot shown behind the listing/billboard when there's no video
  *   video         (optional) demo video URL; autoplays muted on the listing
- *   link          Where "Watch Now" goes (usually the GitHub repo)
+ *   link          Where "Watch Now" goes (usually the GitHub repo); "" hides the button
  *   badge         (optional) "New Season", "Recently Added", "New Episodes"...
  *   top10         (optional) true shows the TOP 10 flag
  *   tags          Short labels shown on the listing and hover preview
@@ -49,11 +49,11 @@ window.PORTFOLIO = {
   },
 
   rows: [
-    { title: "Recently Added", ids: ["heart-risk", "speedhacks", "vapi", "shopping", "safespace"] },
+    { title: "Recently Added", ids: ["heart-risk", "swarmshield", "vapi", "fit-for-me", "safespace"] },
     { title: "Feel-Good Viewing", ids: ["safespace", "heart-risk", "paycheck", "rent", "subscriptions"] },
     { title: "Science in Action", ids: ["bio-inspired", "codemic", "tte", "thesis", "nn-playground"] },
-    { title: "Personal Tools", ids: ["expenses", "subscriptions", "paycheck", "rent", "shopping"] },
-    { title: "Workplace Favorites", ids: ["andromeda", "vapi", "tte", "codemic", "speedhacks"] },
+    { title: "Personal Tools", ids: ["moneymate", "subscriptions", "paycheck", "rent", "fit-for-me"] },
+    { title: "Workplace Favorites", ids: ["andromeda", "vapi", "tte", "codemic", "swarmshield"] },
   ],
 
   projects: {
@@ -136,22 +136,72 @@ window.PORTFOLIO = {
       ],
     },
 
-    speedhacks: {
-      title: "Speedhacks '26",
+    swarmshield: {
+      title: "SwarmShield",
       font: "Press Start 2P",
       palette: ["#0f0c29", "#302b63", "#00e5ff"],
       badge: "Recently Added",
+      poster: "assets/swarmshield/finding-lg.jpg",
       link: "https://github.com/Anika-Lakhani/speedhacks-hackathon26",
-      description: "A 24-hour hackathon build. Placeholder description — tell me what this one does!",
-      created: "Oct 2026",
+      pitch:
+        "Startups landing their first enterprise customer face a security review with a team of one and a pentest they can afford once a year. At SpeedHacks, our team of three built SwarmShield, which safely attacks every release in minutes, and I built its memory: how each customer's findings become privacy-scrubbed lessons that protect every other customer.",
+      description:
+        "A security team of one gets a swarm: continuous, simulated pentesting for every release, where an AI plans what to test and code decides what's real.",
+      created: "Oct 2026 · SpeedHacks, SF Tech Week",
       revised: "Oct 2026",
-      collaborators: "Hackathon team",
-      audience: "Judges with very little time",
-      inspiration: "Caffeine and a deadline",
-      tags: ["Hackathon", "Python"],
+      collaborators: "Eleyn Xiong & Sriya Sthanikam",
+      audience: "Startups whose first security hire is a team of one",
+      inspiration: "The 200-question security questionnaire that arrives with your first enterprise deal",
+      tags: ["Security", "AI agents", "Privacy", "Python"],
       episodes: [
-        { title: "Hour Zero", duration: "3m", description: "Picking an idea in fifteen minutes." },
-        { title: "The Demo", duration: "2m", description: "What we shipped when the clock ran out." },
+        {
+          kind: "why",
+          title: "The 200-Question Questionnaire",
+          image: "assets/swarmshield/home.jpg",
+          full: "assets/swarmshield/home-lg.jpg",
+          description:
+            "Your first enterprise deal arrives with a security questionnaire. A traditional pentest takes 6 to 10 weeks and costs around $18K, so a security team of one runs it once a year, while engineers ship every day, increasingly with AI-written code that Veracode found has security flaws 45% of the time.",
+        },
+        {
+          kind: "change",
+          title: "AI Plans, Code Decides",
+          image: "assets/swarmshield/finding.jpg",
+          full: "assets/swarmshield/finding-lg.jpg",
+          description:
+            "Instead of one annual snapshot, SwarmShield tests every release in minutes. An AI planner picks what's most worth testing from a fixed catalog, safe and clearly marked probes run it against simulated targets, and a deterministic verifier, not the AI, decides whether a weakness is real. Nothing real is ever attacked.",
+        },
+        {
+          kind: "moment",
+          title: "Copy Nothing, Template Everything",
+          image: "assets/swarmshield/shared.jpg",
+          full: "assets/swarmshield/shared-lg.jpg",
+          description:
+            "I owned the memory layer, where one mistake could leak a customer's details to every other customer. So shared lessons are never copied from a customer's notes: they're rendered from tenant-neutral templates, scanned for secrets, personal data and re-identifying details, and quarantined for a human whenever anything looks off. Provenance is a keyed token, never a customer name.",
+        },
+        {
+          kind: "trust",
+          title: "One Customer's Lesson, Another's Catch",
+          image: "assets/swarmshield/confirmed.jpg",
+          full: "assets/swarmshield/confirmed-lg.jpg",
+          description:
+            "An end-to-end test proves the loop works and stays contained: customer A's broken-ownership bug becomes a lesson that reaches customer B's planner but not customer C's, where it doesn't apply. B's run then confirms a related bug, and the lesson's confidence rises only because two independent customers reproduced it. Promoting any finding to \"verified\" needs a human's approval.",
+        },
+        {
+          kind: "outcome",
+          title: "Built in a Day",
+          image: "assets/swarmshield/scan.jpg",
+          full: "assets/swarmshield/scan-lg.jpg",
+          description:
+            "Built and demoed in a single day at SpeedHacks during SF Tech Week on October 11, 2026. The attack harness, dashboard, event store and memory layer run end to end on simulated customers, backed by more than 400 automated tests.",
+        },
+        {
+          kind: "open",
+          title: "Next Season",
+          image: "assets/swarmshield/memory.jpg",
+          full: "assets/swarmshield/memory-lg.jpg",
+          description:
+            "The demo customer sites were still in progress, so the demo runs on simulated ones, and the connection to the sponsor's event store is a stub. And if one customer disproves a shared lesson, the network isn't told automatically yet: for now a reviewer retracts or replaces it by hand, with the reason logged.",
+        },
       ],
     },
 
@@ -175,20 +225,58 @@ window.PORTFOLIO = {
       ],
     },
 
-    shopping: {
-      title: "Cart Check",
+    "fit-for-me": {
+      title: "Fit For Me",
       font: "Shrikhand",
       palette: ["#ff512f", "#f09819", "#ffe259"],
-      link: "https://github.com/Anika-Lakhani",
-      description: "A browser extension that makes you pause before you buy. Placeholder description.",
-      created: "2026",
-      revised: "2026",
-      collaborators: "Solo",
-      audience: "Impulse shoppers (hi)",
-      inspiration: "One too many late-night carts",
-      tags: ["Chrome extension"],
+      link: "https://github.com/anikalakhani/try-on-extension",
+      pitch:
+        "Product photos show clothes on one body type, so most shoppers can't tell how something will fit them. Fit For Me is a Chrome extension that re-renders the product photo on a model built from your own height, weight and measurements, and does the fit math in code so the AI can't fudge where a hem lands.",
+      description:
+        "A Chrome extension that puts the clothes you're browsing on a model with your body, right on the product page.",
+      created: "Aug 2026",
+      revised: "Nov 2026",
+      collaborators: "Solo, with Claude Code",
+      audience: "Shoppers whose bodies don't match the model in the photo",
+      inspiration: "Product photos that only ever show one body type",
+      tags: ["Chrome extension", "Generative AI", "Claude API", "JavaScript"],
       episodes: [
-        { title: "Add to Cart?", duration: "3m", description: "Detecting a checkout page and stepping in at the right moment." },
+        {
+          kind: "why",
+          title: "Not Your Body, Not Your Fit",
+          description:
+            "Online clothing photos show every garment on the retailer's own model, so anyone with a different body has to guess how it will actually look on them. I built Fit For Me for my own shopping, and with no settings entered it defaults to a plus-size model, the tool's original purpose.",
+        },
+        {
+          kind: "change",
+          title: "Try This On",
+          description:
+            "On any product page, one click scrapes the garment photo, its measurements and the reference model's size. Claude writes a prompt from your saved height, weight, cup size and skin tone, FLUX generates your model, and FASHN puts the real garment on her. The result replaces the photo right on the page in 30 to 60 seconds, for about 9 cents.",
+        },
+        {
+          kind: "moment",
+          title: "The Face That Changed",
+          description:
+            "An extra editing step nudges the hem to where it would really land. Sending it the retailer's photo as insurance seemed sensible, until the final images showed a stranger's face. Comparing every stage side by side showed the face was right after try-on and only changed after the edit, which was borrowing the retailer's model's identity. The fix was to send it nothing extra.",
+        },
+        {
+          kind: "trust",
+          title: "Don't Let the AI Do the Math",
+          description:
+            "Twice, Claude stated the rule for shorter-versus-taller models correctly and then reversed it in its own conclusion. So the arithmetic moved into code: hem shift = garment length × (1 − your height ÷ the reference model's height), and ease = garment bust − your bust, both parsed from the page's own text. Claude only phrases a sentence around the number. Fixed seeds keep runs comparable, and an offline test suite runs with no API calls.",
+        },
+        {
+          kind: "outcome",
+          title: "An Honest Mirror",
+          description:
+            "I use it for my own shopping. When the math says a garment is more than 5 inches off your measurements, it doesn't soften the result: the generated image arrives blurred, with a note that the item doesn't seem to come in your size, and you choose whether to see it anyway.",
+        },
+        {
+          kind: "open",
+          title: "Next Season",
+          description:
+            "It's personal-use only, running on my own API keys. Some retailers publish no measurements at all, so it falls back to their written fit language (\"slightly cropped, hits above the hip\") instead of a number. And the try-on model accepts images only, so precise fit instructions can reach it only indirectly.",
+        },
       ],
     },
 
@@ -263,21 +351,56 @@ window.PORTFOLIO = {
       ],
     },
 
-    expenses: {
-      title: "Expense Tracker",
+    moneymate: {
+      title: "MoneyMate",
       font: "Permanent Marker",
       palette: ["#11998e", "#38ef7d", "#e0ffe9"],
       top10: true,
-      link: "https://github.com/Anika-Lakhani",
-      description: "A simple, friendly place to log spending and see where it goes. Placeholder description.",
-      created: "2026",
-      revised: "2026",
+      poster: "assets/moneymate/dashboard-lg.jpg",
+      link: "",
+      pitch:
+        "New grads managing money for the first time often stall at an empty budget form. MoneyMate is a friendly weekly budget tracker that suggests realistic starting budgets from your actual take-home pay and rent, and shows exactly how it got each number.",
+      description:
+        "A friendly weekly budget tracker for anyone managing their own money for the first time.",
+      created: "Jul 2026",
+      revised: "Jul 2026",
       collaborators: "Solo",
-      audience: "People who've never stuck with a budgeting app",
-      inspiration: "Spreadsheets that never got opened twice",
-      tags: ["Finance"],
+      audience: "Recent grads managing their own money for the first time",
+      inspiration: "Graduating college is hard; adult finances can feel even harder",
+      tags: ["Personal finance", "Flask", "Python"],
       episodes: [
-        { title: "Where Did It Go?", duration: "4m", description: "Categories and a monthly picture of your spending." },
+        {
+          kind: "why",
+          title: "The Blank Budget Form",
+          image: "assets/moneymate/add.jpg",
+          full: "assets/moneymate/add-lg.jpg",
+          description:
+            "Graduating college is hard, and managing adult finances can feel even harder. Most budgeting tools open on an empty form, which is exactly where someone handling their own money for the first time gets stuck: what's a reasonable amount to spend on groceries?",
+        },
+        {
+          kind: "change",
+          title: "Numbers to Start From",
+          image: "assets/moneymate/dashboard.jpg",
+          full: "assets/moneymate/dashboard-lg.jpg",
+          description:
+            "Share your take-home pay and rent, both optional, and MoneyMate suggests weekly budgets using the 50/30/20 rule: half for needs, with rent taken out first, 30% for wants, and 20% nudged toward savings. Color-coded bars show each category as on track, getting close, or over, and everything stays on your own computer.",
+        },
+        {
+          kind: "moment",
+          title: "When Rent Eats Everything",
+          image: "assets/moneymate/rent.jpg",
+          full: "assets/moneymate/rent-lg.jpg",
+          description:
+            "Rent comes out of the \"needs\" half before groceries and transportation are split. If rent alone is bigger than that whole pool, MoneyMate doesn't invent numbers to make the math work: it suggests $0 for both and flags that rent may be taking an outsized share of your pay.",
+        },
+        {
+          kind: "trust",
+          title: "Show Your Work",
+          image: "assets/moneymate/math.jpg",
+          full: "assets/moneymate/math-lg.jpg",
+          description:
+            "Every suggested number comes with a \"How are the suggested amounts calculated?\" button that walks through the full math using your own income and rent. It started as a command-line tool, then a desktop app, then this web app, and all three still share one local data file, so anything logged in one shows up in the others.",
+        },
       ],
     },
 

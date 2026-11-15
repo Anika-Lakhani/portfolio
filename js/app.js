@@ -138,7 +138,7 @@
           ${p.top10 ? '<div class="billboard__rank"><span class="rank-badge"><small>TOP</small>10</span>#1 in Projects Today</div>' : ""}
           <p class="billboard__pitch">${esc(f.pitch || p.pitch || p.description)}</p>
           <div class="billboard__actions">
-            <a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>
+            ${p.link ? `<a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>` : ""}
             <a class="btn-info" href="#/title/${esc(f.id)}">${icons.info}More Info</a>
           </div>
         </div>
@@ -266,7 +266,7 @@
       <a class="preview__art" href="#/title/${id}" aria-label="${esc(p.title)}">${art(p)}${demoVideo(p)}</a>
       <div class="preview__body">
         <div class="preview__actions">
-          <a class="btn-circle btn-circle--solid" href="${esc(p.link)}" target="_blank" rel="noopener" aria-label="Watch now">${icons.play}</a>
+          ${p.link ? `<a class="btn-circle btn-circle--solid" href="${esc(p.link)}" target="_blank" rel="noopener" aria-label="Watch now">${icons.play}</a>` : ""}
           ${likeButton(id)}
           <a class="btn-circle preview__more" href="#/title/${id}" aria-label="More info">${icons.chevron}</a>
         </div>
@@ -341,7 +341,7 @@
             <div class="hero__content">
               <h1 class="hero__title" style="font-family:'${esc(p.font)}'">${esc(p.title)}</h1>
               <div class="hero__actions">
-                <a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>
+                ${p.link ? `<a class="btn-play" href="${esc(p.link)}" target="_blank" rel="noopener">${icons.play}Watch Now</a>` : ""}
                 ${likeButton(id)}
               </div>
             </div>
