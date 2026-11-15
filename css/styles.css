@@ -87,7 +87,7 @@ img { display: block; max-width: 100%; }
 .billboard__shade {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(77deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.35) 38%, rgba(0,0,0,0) 62%),
+    linear-gradient(77deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.7) 34%, rgba(0,0,0,.2) 58%, rgba(0,0,0,0) 72%),
     linear-gradient(to top, var(--bg) 0%, rgba(20,20,20,0) 26%);
 }
 .billboard__content {
@@ -242,6 +242,9 @@ img { display: block; max-width: 100%; }
 .art--image::before, .art--image::after { display: none; }
 /* Screenshots behind a big title (listing header, billboard) are dimmed so the title stays readable */
 .hero .art--image img, .billboard .art--image img { filter: brightness(.4) saturate(.85); object-position: top; }
+/* Demo videos are mostly bright app UI: dim the banner's a lot, the listing's a little */
+.billboard video { filter: brightness(.45) saturate(.9); }
+.hero video { filter: brightness(.7); }
 .art__title {
   position: relative; z-index: 1;
   font-size: clamp(14px, 11cqw, 64px);
@@ -311,7 +314,9 @@ img { display: block; max-width: 100%; }
 .hero video.is-playing { opacity: 1; }
 .hero__fade {
   position: absolute; inset: 0;
-  background: linear-gradient(to top, var(--bg-elevated) 0%, rgba(24,24,24,0) 45%);
+  background:
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(0,0,0,.75), transparent 70%),
+    linear-gradient(to top, var(--bg-elevated) 0%, rgba(24,24,24,.35) 35%, rgba(24,24,24,0) 60%);
   pointer-events: none;
 }
 .hero__content {

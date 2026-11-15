@@ -89,7 +89,10 @@
     };
   }
 
-  const demoVideo = (p) => (p.video ? `<video src="${esc(p.video)}" autoplay muted loop playsinline preload="auto"></video>` : "");
+  const demoVideo = (p) =>
+    p.video
+      ? `<video src="${esc(p.video)}"${p.poster ? ` poster="${esc(p.poster)}"` : ""} autoplay muted loop playsinline preload="auto"></video>`
+      : "";
   const muteButton = (cls) => `<button class="btn-circle ${cls}" aria-label="Turn sound on">${icons.soundOff}</button>`;
 
   // Key art: a real image if the project has one, otherwise a painted gradient

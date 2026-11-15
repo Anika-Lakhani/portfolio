@@ -62,6 +62,7 @@ window.PORTFOLIO = {
       badge: "New Season",
       top10: true,
       poster: "assets/heart-risk/results.jpg",
+      video: "assets/heart-risk/demo.mp4",
       link: "https://anika-lakhani.github.io/south-asian-heart-risk/",
       pitch:
         "Heart-risk calculators give South Asians answers that differ threefold, and a single blood-pressure reading can't tell you which side of a treatment line you're on. I built a tool that makes both kinds of uncertainty visible, grounded in published clinical models and HCI research, plus a privacy-first way to collect the South Asian data that's missing.",
